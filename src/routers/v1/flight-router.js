@@ -8,5 +8,8 @@ router.post(
   FlightMiddleware.checkFlightNumber,
   FlightController.addFlight
 );
+router.get("/", FlightController.getFlights);
+router.get("/:id", FlightController.getFlight);
+router.delete("/:id", FlightController.deleteFlight);
 
 module.exports = router;

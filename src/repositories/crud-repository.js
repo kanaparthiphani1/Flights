@@ -1,3 +1,6 @@
+const { StatusCodes } = require("http-status-codes");
+const AppError = require("../utils/errors/app-error");
+
 class CRUDRepo {
   constructor(model) {
     this.model = model;
@@ -5,7 +8,14 @@ class CRUDRepo {
 
   //getbyId
   async getById(data) {
-    return await this.model.findByPk(data);
+    const res = await this.model.findByPk(data);
+    if (!res) {
+      throw new AppError(
+        "not Able to find the resource ",
+        StatusCodes.NOT_FOUND
+      );
+    }
+    return res;
   }
 
   //getAll
@@ -19,11 +29,20 @@ class CRUDRepo {
 
   //deletebyid
   async destroy(id) {
-    return await this.model.destroy({
+    const res = await this.model.destroy({
       where: {
         id,
       },
     });
+
+    if (!res) {
+      throw new AppError(
+        "Not able to fund the resource",
+        StatusCodes.NOT_FOUND
+      );
+    }
+
+    return res;
   }
 }
 

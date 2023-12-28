@@ -15,4 +15,37 @@ async function addFlight(req, res) {
   }
 }
 
-module.exports = { addFlight };
+async function getFlights(req, res) {
+  try {
+    const flights = await FlightService.getFlights();
+    SuccessResponse.data = flights;
+    return res.status(StatusCodes.OK).json(SuccessResponse);
+  } catch (error) {
+    ErrorResponse.error = error;
+    return res.status(error.statusCode).json(ErrorResponse);
+  }
+}
+
+async function getFlight(req, res) {
+  try {
+    const flight = await FlightService.getFlight(req.params.id);
+    SuccessResponse.data = flight;
+    return res.status(StatusCodes.OK).json(SuccessResponse);
+  } catch (error) {
+    ErrorResponse.error = error;
+    return res.status(error.statusCode).json(ErrorResponse);
+  }
+}
+
+async function deleteFlight(req, res) {
+  try {
+    const flight = await FlightService.deleteFlight(req.params.id);
+    SuccessResponse.data = flight;
+    return res.status(StatusCodes.OK).json(SuccessResponse);
+  } catch (error) {
+    ErrorResponse.error = error;
+    return res.status(error.statusCode).json(ErrorResponse);
+  }
+}
+
+module.exports = { addFlight, getFlights, getFlight, deleteFlight };
