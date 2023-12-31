@@ -6,11 +6,9 @@ const flightRepo = new FlightRepo();
 
 async function addFlight(flightNumber, capacity) {
   try {
-    console.log("Flight Repo : ", flightRepo);
     const flight = await flightRepo.create({ flightNumber, capacity });
     return flight;
   } catch (error) {
-    console.log("ERROR : ", error);
     if (error.name === "SequelizeValidationError") {
       let explanation = [];
       error.errors.forEach((err) => {

@@ -1,6 +1,7 @@
 const { StatusCodes } = require("http-status-codes");
 const { FlightTripRepo } = require("../repositories");
 const AppError = require("../utils/errors/app-error");
+const { Op } = require("sequelize");
 
 const flightTripRepo = new FlightTripRepo();
 
@@ -30,9 +31,9 @@ async function getAllFlightTrips(query) {
   let sortFilter = [];
   const endingTripTime = " 23:59:00";
   if (query.trips) {
-    [departureAirportId, arrivalAirportId] = query.trips.split("-");
+    [departureAirportId, arivalAirportId] = query.trips.split("-");
     customFilter.departureAirportId = departureAirportId;
-    customFilter.arrivalAirportId = arrivalAirportId;
+    customFilter.arivalAirportId = arivalAirportId;
   }
   if (query.price) {
     [minPrice, maxPrice] = query.price.split("-");
@@ -40,7 +41,7 @@ async function getAllFlightTrips(query) {
       [Op.between]: [minPrice, maxPrice == undefined ? 20000 : maxPrice],
     };
   }
-
+  console.log("outside price");
   if (query.travellers) {
     customFilter.totalSeats = {
       [Op.gte]: query.travellers,
@@ -73,4 +74,43 @@ async function getAllFlightTrips(query) {
   }
 }
 
-module.exports = { createFlightTrip };
+async function getFlightTrip(id) {
+  try {
+    const flightTrip = await flightTripRepo.getById(id);
+    return flightTrip;
+  } catch (error) {
+    if (error.statusCode == StatusCodes.NOT_FOUND) {
+      throw new AppError(
+        "The flightTrip you requested is not present",
+        error.statusCode
+      );
+    }
+    throw new AppError(
+      "Cannot fetch data of all the flightTrip",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+}
+
+async function updateSeats(data) {
+  try {
+    const res = await flightTripRepo.updateRemainingSeats(
+      data.flightTripId,
+      data.seats,
+      data.dec
+    );
+    return res;
+  } catch (error) {
+    throw new AppError(
+      "Cannot Update data of the flightTrip",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+}
+
+module.exports = {
+  createFlightTrip,
+  getAllFlightTrips,
+  getFlightTrip,
+  updateSeats,
+};
